@@ -1,9 +1,13 @@
 use derive_more::From;
 use image;
 use reqwest;
-use std::io::{Cursor, Read, Seek, SeekFrom};
+use std::io::{Cursor, Seek, SeekFrom};
 use std::time::Instant;
 use timing::measure_duration;
+
+use crate::processor::CatImage;
+
+pub mod processor;
 
 #[macro_use]
 extern crate rocket;
@@ -34,9 +38,13 @@ fn image_to_png(image: image::DynamicImage) -> Vec<u8> {
 
     buf.seek(SeekFrom::Start(0)).expect("An error ocurred");
 
+    let cat = CatImage::from_vec_cursor(&mut buf).expect("Oops 1.0");
+
+    cat.draw();
+
     let mut out = Vec::new();
-    buf.read_to_end(&mut out)
-        .expect("An error ocurred copying the cursor");
+
+    cat.write_to(&mut out).expect("lmao");
 
     return out;
 }

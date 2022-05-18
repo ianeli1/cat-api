@@ -56,8 +56,11 @@ enum CatResponses<'r> {
 
 #[get("/cat")]
 async fn cat_endpoint<'a>() -> CatResponses<'a> {
+    let start = Instant::now();
     if let Ok(cat) = get_image(CAT_URL).await {
-        return CatResponses::ImageRes(image_to_png(cat));
+        let res = CatResponses::ImageRes(image_to_png(cat));
+        println!("Request duration: {:?}", start.elapsed());
+        res
     } else {
         return CatResponses::Failure("An error ocurred");
     }
